@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sojourn — Never miss what matters</title>
+  <meta name="description" content="A personal dashboard for international students. Track academic deadlines and bills, then export everything to your calendar in one click." />
+  <meta name="theme-color" content="#3D5A80" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0F141B" media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sojourn" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- =====================  TOP APP BAR  ===================== -->
+  <header class="app-bar">
+    <div class="app-bar__inner">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <defs>
+              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3D5A80"/>
+                <stop offset="100%" stop-color="#293241"/>
+              </linearGradient>
+            </defs>
+            <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+            <path d="M11.4 21.6c0 1.7 1.4 3.2 4.4 3.2 2.9 0 4.7-1.6 4.7-3.6 0-1.7-1-2.8-3.4-3.4l-1.7-.4c-1.1-.3-1.5-.7-1.5-1.3 0-.7.6-1.2 1.7-1.2 1.2 0 1.9.6 1.9 1.5h2.7c0-2-1.7-3.6-4.5-3.6-2.8 0-4.5 1.6-4.5 3.5 0 1.7 1 2.7 3.2 3.2l1.7.4c1.1.3 1.7.7 1.7 1.5 0 .8-.7 1.3-1.9 1.3-1.4 0-2.1-.6-2.1-1.6h-2.4z" fill="#E0FBFC"/>
+          </svg>
+        </span>
+        <div class="brand__text">
+          <div class="brand__name" data-i18n="appName">Sojourn</div>
+          <div class="brand__tagline" data-i18n="tagline">Never miss what matters.</div>
+        </div>
+      </div>
+      <button class="icon-btn icon-btn--primary" id="addBtn" aria-label="Add">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="icon-btn__label" data-i18n="addItem">Add</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================  MAIN VIEWS  ===================== -->
+  <main class="app-main">
+
+    <!-- ============= DASHBOARD ============= -->
+    <section class="view view--dashboard" id="view-dashboard" data-view="dashboard">
+      <!-- Summary strip -->
+      <div class="stat-strip" id="statStrip"></div>
+
+      <!-- Filter row -->
+      <div class="filter-row">
+        <div class="seg" role="tablist" aria-label="Filter">
+          <button class="seg__btn is-active" data-filter="all" data-i18n="filterAll">All</button>
+          <button class="seg__btn" data-filter="task" data-i18n="filterTasks">Tasks</button>
+          <button class="seg__btn" data-filter="bill" data-i18n="filterBills">Bills</button>
+        </div>
+        <button class="ghost-btn" id="exportIcsBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+          <span data-i18n="exportCalendar">Export to Calendar</span>
+        </button>
+      </div>
+
+      <!-- Items list -->
+      <div class="items" id="itemsList"></div>
+
+      <!-- Empty state -->
+      <div class="empty" id="emptyState" hidden>
+        <div class="empty__art" aria-hidden="true">
+          <svg viewBox="0 0 120 120" width="96" height="96" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="20" y="28" width="80" height="74" rx="10"/>
+            <path d="M20 46h80"/>
+            <path d="M38 22v12M82 22v12"/>
+            <circle cx="60" cy="74" r="14"/>
+            <path d="M60 68v8l5 3"/>
+          </svg>
+        </div>
+        <h3 class="empty__title" data-i18n="emptyTitle">Nothing tracked yet</h3>
+        <p class="empty__body" data-i18n="emptyBody">Add your first task or bill to see it land here.</p>
+        <button class="cta" id="emptyAddBtn" data-i18n="emptyCTA">Add your first item</button>
+        <div class="quick-add" id="quickAdd"></div>
+      </div>
+    </section>
+
+    <!-- ============= CALENDAR ============= -->
+    <section class="view view--calendar" id="view-calendar" data-view="calendar" hidden>
+      <div class="cal-head">
+        <button class="icon-btn icon-btn--ghost" id="calPrev" aria-label="Previous month">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <h2 class="cal-title" id="calTitle"></h2>
+        <button class="icon-btn icon-btn--ghost" id="calNext" aria-label="Next month">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="cal-weekdays" id="calWeekdays"></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-day-detail" id="calDayDetail"></div>
+    </section>
+
+    <!-- ============= SETTINGS ============= -->
+    <section class="view view--settings" id="view-settings" data-view="settings" hidden>
+      <div class="settings">
+        <!-- Appearance -->
+        <div class="card">
+          <h3 class="card__title" data-i18n="settingsAppearance">Appearance</h3>
+          <div class="card__row">
+            <label class="row-label" data-i18n="settingsTheme">Theme</label>
+            <div class="seg seg--sm" id="themeSeg">
+              <button class="seg__btn" data-theme="auto"  data-i18n="themeAuto">Auto</button>
+              <button class="seg__btn" data-theme="light" data-i18n="themeLight">Light</button>
+              <button class="seg__btn" data-theme="dark"  data-i18n="themeDark">Dark</button>
+            </div>
+          </div>
+          <div class="card__row">
+            <label class="row-label" data-i18n="settingsLanguage">Language</label>
+            <select class="select" id="langSelect"></select>
+          </div>
+        </div>
+
+        <!-- Defaults -->
+        <div class="card">
+          <h3 class="card__title" data-i18n="settingsDefaults">Defaults</h3>
+          <div class="card__row">
+            <label class="row-label" data-i18n="defaultCurrency">Default currency</label>
+            <select class="select" id="defaultCurrencySelect"></select>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div class="card">
+          <h3 class="card__title" data-i18n="settingsData">Data</h3>
+          <div class="card__row card__row--stack">
+            <button class="ghost-btn ghost-btn--block" id="exportJsonBtn" data-i18n="exportData">Export backup (JSON)</button>
+            <label class="ghost-btn ghost-btn--block" for="importJsonInput" data-i18n="importData">Import backup (JSON)</label>
+            <input type="file" id="importJsonInput" accept="application/json,.json" hidden />
+            <button class="ghost-btn ghost-btn--block ghost-btn--danger" id="clearDataBtn" data-i18n="clearData">Clear all data</button>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div class="card">
+          <h3 class="card__title" data-i18n="settingsAbout">About</h3>
+          <p class="muted" data-i18n="aboutBody">Sojourn is a personal dashboard for international students. Everything lives in your browser — no accounts, no tracking.</p>
+          <p class="muted muted--sm"><span data-i18n="version">Version</span> 1.0.0</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================  BOTTOM NAV  ===================== -->
+  <nav class="bottom-nav" aria-label="Primary">
+    <button class="bn__btn is-active" data-nav="dashboard">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span data-i18n="navDashboard">Dashboard</span>
+    </button>
+    <button class="bn__btn" data-nav="calendar">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <span data-i18n="navCalendar">Calendar</span>
+    </button>
+    <button class="bn__btn" data-nav="settings">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1A2 2 0 1 1 7 4.3l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span data-i18n="navSettings">Settings</span>
+    </button>
+  </nav>
+
+  <!-- =====================  MODAL (Add/Edit)  ===================== -->
+  <div class="modal" id="modal" hidden aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal__scrim" data-close></div>
+    <div class="modal__panel" role="document">
+      <div class="modal__head">
+        <h2 class="modal__title" id="modalTitle" data-i18n="addTitle">Add item</h2>
+        <button class="icon-btn icon-btn--ghost" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <form class="form" id="itemForm" autocomplete="off">
+        <div class="seg" id="typeSeg" role="tablist">
+          <button type="button" class="seg__btn is-active" data-type="task" data-i18n="typeTask">Task</button>
+          <button type="button" class="seg__btn" data-type="bill" data-i18n="typeBill">Bill</button>
+        </div>
+
+        <label class="field">
+          <span class="field__label" data-i18n="fieldTitle">Title</span>
+          <input class="input" type="text" name="title" id="fTitle" required maxlength="80" />
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span class="field__label" data-i18n="fieldDate">Date</span>
+            <input class="input" type="date" name="date" id="fDate" required />
+          </label>
+          <label class="field">
+            <span class="field__label" data-i18n="fieldTime">Time (optional)</span>
+            <input class="input" type="time" name="time" id="fTime" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label" data-i18n="fieldCategory">Category</span>
+          <select class="select" name="category" id="fCategory"></select>
+        </label>
+
+        <!-- Bill-only fields -->
+        <div class="bill-only" id="billFields" hidden>
+          <div class="field-row">
+            <label class="field field--wide">
+              <span class="field__label" data-i18n="fieldAmount">Amount</span>
+              <input class="input" type="number" name="amount" id="fAmount" min="0" step="0.01" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span class="field__label" data-i18n="fieldCurrency">Currency</span>
+              <select class="select" name="currency" id="fCurrency"></select>
+            </label>
+          </div>
+          <label class="field">
+            <span class="field__label" data-i18n="fieldRecurring">Repeats</span>
+            <select class="select" name="recurring" id="fRecurring">
+              <option value="none" data-i18n="recurringNone">Does not repeat</option>
+              <option value="monthly" data-i18n="recurringMonthly">Monthly</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label" data-i18n="fieldNote">Note (optional)</span>
+          <textarea class="input" name="note" id="fNote" rows="2" maxlength="240"></textarea>
+        </label>
+
+        <div class="modal__actions">
+          <button type="button" class="ghost-btn" data-close data-i18n="cancel">Cancel</button>
+          <button type="submit" class="cta" data-i18n="save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================  TOAST  ===================== -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
